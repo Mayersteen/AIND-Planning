@@ -245,7 +245,7 @@ class AirCargoProblem(Problem):
         # When an expression is already in a goal state, reduce the maxSteps
         # by one. This ensures that only necessary actions are counted.
         for expression in self.goal:
-            if kb.ask(expression):
+            if expression in kb.clauses:
                 maxSteps -= 1
 
         return maxSteps
