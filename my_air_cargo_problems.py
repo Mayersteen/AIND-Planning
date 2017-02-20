@@ -175,6 +175,7 @@ class AirCargoProblem(Problem):
         # same name and args as the given action, the given action is assumed to
         # be valid.
         for testAction in self.actions(state):
+
             if self.actionsAreEqual(action, testAction):
 
                 # Apply action to the knowledge base
