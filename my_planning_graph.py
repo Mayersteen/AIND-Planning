@@ -516,12 +516,10 @@ class PlanningGraph():
         :return: bool
         '''
 
-        for effect in node_a1.action.effect_rem:
-            if effect in node_a2.action.precond_pos:
-                return True
+        rem_effects = node_a1.action.effect_rem + node_a2.action.effect_rem
 
-        for effect in node_a2.action.effect_rem:
-            if effect in node_a1.action.precond_pos:
+        for effect in rem_effects:
+            if effect in node_a1.action.precond_pos or effect in node_a2.action.precond_pos:
                 return True
 
         return False
