@@ -444,6 +444,7 @@ class PlanningGraph():
                 # an increased runtime of ~10% while the result was the same.
                 lookup_string = n1.action.name + n2.action.name # + n1.action.args + n2.action.args
                 if lookup_string in update_a_mutex_cache:
+                    mutexify(n1, n2)
                     break
 
                 if (self.serialize_actions(n1, n2) or
