@@ -196,7 +196,6 @@ class AirCargoProblem(Problem):
         :param state: str representing state
         :return: bool
         """
-
         temp_pos = decode_state(state, self.state_map).pos
 
         for clause in self.goal:
