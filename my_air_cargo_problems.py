@@ -140,13 +140,24 @@ class AirCargoProblem(Problem):
 
         possible_actions = []
 
-        kb = PropKB()
-        kb.tell(decode_state(state, self.state_map).pos_sentence())
+        temp_p = decode_state(state, self.state_map).pos
+        temp_n = decode_state(state, self.state_map).neg
 
-        # iterate over all actions and add actions to possible_actions when the
-        # preconditions are fulfilled.
         for action in self.actions_list:
-            if action.check_precond(kb, action.args):
+
+            action_is_valid = True
+
+            for pos in action.precond_pos:
+                if pos not in temp_p:
+                    action_is_valid = False
+                    break
+
+            for neg in action.precond_neg:
+                if neg not in temp_n:
+                    action_is_valid = False
+                    break
+
+            if action_is_valid:
                 possible_actions.append(action)
 
         return possible_actions
@@ -163,36 +174,19 @@ class AirCargoProblem(Problem):
         :return: resulting state after action
         """
 
-        new_state = FluentState([], [])
+        temp_pos = decode_state(state, self.state_map).pos
+        temp_neg = decode_state(state, self.state_map).neg
 
-        # Initially every action is assumed to be invalid.
-        actionValid = False
+        # remove negative literals and add positive literals
+        for add_val in action.effect_add:
+            temp_pos.append(add_val)
+            temp_neg.remove(add_val)
 
-        kb = PropKB()
-        kb.tell(decode_state(state, self.state_map).pos_sentence())
+        for rem_val in action.effect_rem:
+            temp_pos.remove(rem_val)
+            temp_neg.append(rem_val)
 
-        # Only  when an action is found within self.actions(state) that has the
-        # same name and args as the given action, the given action is assumed to
-        # be valid.
-        for testAction in self.actions(state):
-
-            if self.actionsAreEqual(action, testAction):
-
-                # Apply action to the knowledge base
-                action.act(kb, action.args)
-
-                # Update new_state. negative preconditions are ignored as there
-                # exist none in this scenario.
-                new_state.pos = kb.clauses
-                break
-
-        return encode_state(new_state, self.state_map)
-
-# ------------------------------------------------------------------------------
-
-    def actionsAreEqual(self, actionA: Action, actionB: Action):
-        return     actionA.name == actionB.name \
-               and actionA.args == actionB.args
+        return encode_state(FluentState(temp_pos, temp_neg), self.state_map)
 
 # ------------------------------------------------------------------------------
 
@@ -202,17 +196,22 @@ class AirCargoProblem(Problem):
         :param state: str representing state
         :return: bool
         """
-        kb = PropKB()
-        kb.tell(decode_state(state, self.state_map).pos_sentence())
+
+        temp_pos = decode_state(state, self.state_map).pos
+
         for clause in self.goal:
-            if clause not in kb.clauses:
+            if clause not in temp_pos:
                 return False
         return True
+
+# ------------------------------------------------------------------------------
 
     def h_1(self, node: Node):
         # note that this is not a true heuristic
         h_const = 1
         return h_const
+
+# ------------------------------------------------------------------------------
 
     def h_pg_levelsum(self, node: Node):
         '''
