@@ -7,6 +7,7 @@ update_a_mutex_cache = dict()
 
 s_node_hash_cache = dict()
 a_node_hash_cache = dict()
+equality_hash_cache = dict()
 
 class PgNode():
     ''' Base class for planning graph nodes.
@@ -110,9 +111,16 @@ class PgNode_s(PgNode):
         :param other: PgNode_s
         :return: bool
         '''
+
+        lookup = self.symbol + other.symbol + str(self.is_pos) + str(other.is_pos)
+
+        if lookup in equality_hash_cache:
+            return equality_hash_cache[lookup]
+
         if isinstance(other, self.__class__):
-            return (self.symbol == other.symbol) \
+            equality_hash_cache[lookup] = (self.symbol == other.symbol) \
                    and (self.is_pos == other.is_pos)
+            return equality_hash_cache[lookup]
 
     # --------------------------------------------------------------------------
 

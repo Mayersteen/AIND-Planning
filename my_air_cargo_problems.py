@@ -238,13 +238,12 @@ class AirCargoProblem(Problem):
         # number of conditions in the goal state.
         maxSteps = self.goal.__len__()
 
-        kb = PropKB()
-        kb.tell(decode_state(node.state, self.state_map).pos_sentence())
+        temp_pos = decode_state(node.state, self.state_map).pos
 
         # When an expression is already in a goal state, reduce the maxSteps
         # by one. This ensures that only necessary actions are counted.
         for expression in self.goal:
-            if expression in kb.clauses:
+            if expression in temp_pos:
                 maxSteps -= 1
 
         return maxSteps
